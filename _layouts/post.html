@@ -6,13 +6,45 @@ layout: default
 <!-- Main -->
 <div id="main">
 	<!-- Post -->
+	 
+	 
+	<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+	
+
+
 	<article class="shade-two">
 	  <div class="container">
 			<header>
 				<h2>{{- page.title -}}</h2>
 				<p>{% if page.author %}{{ page.author }}, {% endif %}{{- page.date | date_to_long_string -}}</p>
 			</header>
+			 <!-- 在正文开头添加网易云音乐插件 -->
+			 {% if page.music-id %}
+			{% include cloud-music.html %}
+			{% endif %} 
+	  
 	    {{- content -}}
 	  </div>
 	</article>
+		<script>
+		var idcomments_acct = '8dadfaf0b4f0adfe6720418cceeaf631';
+		var idcomments_post_id;
+		var idcomments_post_url;
+		</script>
+		<span id="IDCommentsPostTitle" style="display:none"></span>
+		<script type='text/javascript' src='https://www.intensedebate.com/js/genericCommentWrapperV2.js'></script>
+		
+		<script>
+		var idcomments_acct = '8dadfaf0b4f0adfe6720418cceeaf631';
+		var idcomments_post_id;
+		var idcomments_post_url;
+		</script>
+		<script type="text/javascript" src="https://www.intensedebate.com/js/genericLinkWrapperV2.js"></script>
+
+
+		
+		<span id="busuanzi_container_site_uv">
+		本站访客数<span id="busuanzi_value_site_uv"></span>人次
+		</span>
+	
 </div>
