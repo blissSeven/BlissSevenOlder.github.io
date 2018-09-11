@@ -166,5 +166,6 @@ $l_i=\frac{h_i}{\sqrt{\sum_{j=1}^{128}h_j}}$,j=1,2,3...
 
 ### 参考
 SIFT算法详解:<https://blog.csdn.net/zddblog/article/details/7521424>  
-SIFT特征提取分析:<https://blog.csdn.net/abcjennifer/article/details/7639681/>
-
+SIFT特征提取分析:<https://blog.csdn.net/abcjennifer/article/details/7639681/>  
+SIFT四部曲之——高斯滤波<https://www.cnblogs.com/xujianqing/p/5988627.html>  
+SIFT四部曲之——极值检测和定位<https://blog.csdn.net/hit2015spring/article/details/52972890>
