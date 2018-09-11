@@ -12,7 +12,7 @@ music-id: 404610
 Octave1中，包含6个图像，size和原始图像是一样的，其中上层是高斯滤波的参数，$\sigma$,$k\sigma$,$k^2\sigma$,
 之后高斯平滑后的两幅图像相减得到DOG space(difference of gaussian) 中的图像，在Octave2中，Gaussian space 
 图像中，size为Octave1的一半，下采样产生，高斯参数为$2\sigma$,$2k\sigma$,$2k^2\sigma$,Octave3类似。
-此外Octave2中的初始图像由Octave1中倒数第3张图像下采样而来，
+此外Octave2中的初始图像由Octave1中倒数第3张图像下采样而来.
 
 Octave的层数$n=log_2{min(M,N)}-t$, $t \in [0,log_2{min(M,N)}]$, M,N为图像原始size,n为塔顶图像最小维度的log值。
 尺度空间的尺度系数$k=2^{\frac{1}{s}}$,s为每塔的层数,k值有待进一步考究。。。。
@@ -34,9 +34,12 @@ $\sigma \triangledown ^2 G=\frac{\partial G}{\partial \sigma} \approx \frac{G(x,
 则DOG金字塔每组需S+2层图像，而DOG金字塔由高斯金字塔相邻两层相减得到，则高斯金字塔每组需S+3层图像，实际计算时S在3到5之间。
 
 ### 限制一些点 或者说关键点定位
+<span class="image right"><img width = "300" height = "300" src="{{ 'assets/images/realextrenum.jpg' | relative_url }}" alt="error image path " /></span> 
+
 通过拟和三维二次函数以精确确定关键点的位置和尺度（达到亚像素精度），同时去除低对比度的关键点和不稳定的边缘响应点(因为DoG算子会产生较强的边缘响应)，
 以增强匹配稳定性、提高抗噪声能力，在这里使用近似Harris Corner检测器。利用DoG函数在尺度空间的Taylor展开式(拟合函数)为  
-$D(x)=D+ \frac {\partial D^T}{\partial x} x+ \frac{1}{2}x^T \frac{\partial ^2 D}{\partial x ^2} x$  
+$D(x)=D+ \frac {\partial D^T}{\partial x} x+ \frac{1}{2}x^T \frac{\partial ^2 D}{\partial x ^2} x$   
+ 
 $X=(x,y,\sigma)$后求导等于0，  
 得到极值点，$\hat{x} =-\frac{\partial^2 D^{-1}}{\partial x ^2} \frac{\partial D}{\partial x}$.
 
@@ -93,28 +96,30 @@ L为关键点所在的尺度空间值，按Lowe的建议，梯度的模值m(x,y)
 
 SIFT描述子是关键点邻域高斯图像梯度统计结果的一种表示。通过对关键点周围图像区域分块，计算块内梯度直方图，生成具有独特性的向量，这个向量是该区域图像信息的一种抽象，具有唯一性。
 ##确定计算描述子所需的图像区域
+<span class="image right"><img width = "200" height = "200" src="{{ 'assets/images/rotate.jpg' | relative_url }}" alt="error image path " /></span>   
 特征描述子与特征点所在的尺度有关，因此，对梯度的求取应在特征点对应的高斯图像上进行。将关键点附近的邻域划分为
 $d*d$(Lowe建议d=4)个子区域，每个子区域做为一个种子点，每个种子点有8个方向。每个子区域的大小与关键点方向分配时相同，即每个区域有个$3 \sigma \\_ oct$子像素，
-为每个子区域分配边长为$3 \sigma \\_ oct$的矩形区域进行采样(个子像素实际用边长为$ \sqrt {3 \sigma \\_ oct}$的矩形区域即可包含，但$3 \sigma \\_ oct \ge 6 \sigma_0 $不大，
+为每个子区域分配边长为$3 \sigma \\_ oct$的矩形区域进行采样(个子像素实际用边长为$ \sqrt {3 \sigma \\_ oct}$的矩形区域即可包含，但由于
+$ \sigma \\_ oct(s)=\sigma_0 2 ^{\frac{s}{S}}$ , 所以$3 \sigma \\_ oct \ge 6 \sigma_0 $不大，
 为了简化计算取其边长为$3 \sigma \\_ oct$，并且采样点宜多不宜少)。考虑到实际计算时，需要采用双线性插值，所需图像窗口边长为$3 \sigma \\_ oct x (d+1)$。
 在考虑到旋转因素(方便下一步将坐标轴旋转到关键点的方向)，如图所示，实际计算所需的图像区域半径为：  
 $radius=\frac{3 \sigma \\_ oct x \sqrt{2}x (d+1)}{2}$,结果四舍五入取整。    
-<span class="image right"><img width = "100" height = "100" src="{{ 'assets/images/rotate.jpg' | relative_url }}" alt="error image path " /></span>   
+
 ## 将坐标轴旋转为关键点的方向，以确保旋转不变性
-<span class="image right"><img width = "100" height = "100" src="{{ 'assets/images/rotate2.jpg' | relative_url }}" alt="error image path " /></span>    
-旋转后邻域内采样点的新坐标为：  
+<span class="image right"><img width = "200" height = "200" src="{{ 'assets/images/rotate2.jpg' | relative_url }}" alt="error image path " /></span>    
+旋转后邻域内采样点的新坐标为：   
 $$
  \begin{bmatrix}
-   x^'  \\
-   y^'
+   x'  \\
+   y'
   \end{bmatrix}  
-$$  =
+$$  = 
 $$
  \begin{bmatrix}
    cos \theta & -sin \theta  \\
    sin \theta & cos \theta
   \end{bmatrix}  
-$$  
+$$ x
 $$
  \begin{bmatrix}
    x  \\
@@ -122,24 +127,44 @@ $$
   \end{bmatrix}  
 $$  $x,y \in [-radius,radius]$  
 ##将邻域内的采样点分配到对应的子区域内，将子区域内的梯度值分配到8个方向上，计算其权值。
-旋转后的采样点坐标在半径为radius的圆内被分配到的$ dxd $子区域，计算影响子区域的采样点的梯度和方向，分配到8个方向上。
+旋转后的采样点坐标在半径为radius的圆内被分配到的$ d*d $子区域，计算影响子区域的采样点的梯度和方向，分配到8个方向上。
 
-旋转后的采样点$(x^',y^')$落在子区域的下标为:  
+旋转后的采样点$(x',y')$落在子区域的下标为:  
 $$
  \begin{bmatrix}
-   x^'  \\
-   y^'
+   x'  \\
+   y'
   \end{bmatrix}  
-$$  = \frac{1}{3 \sigma \\_ oct}
+$$  $= \frac{1}{3 \sigma \\_ oct}$
 $$
  \begin{bmatrix}
-   x^'  \\
-   y^'
+   x'  \\
+   y'
   \end{bmatrix}  
-$$  +\frac{d}{2}  
+$$  $+\frac{d}{2}  $
 Lowe建议子区域的像素的梯度大小按$\sigma =0.5d $的高斯加权计算，即
-$w=m(a+x,b+y)*e ^ - \frac{ (x^')^2+(y^')^2}{2x(0.5d)^2}$,a,b为关键点在高斯金字塔图像中的位置坐标。  
+$w=m(a+x,b+y)$ $ * e ^ { - \frac{ (x')^2+(y')^2}{2(0.5d)^2}}$,a,b为关键点在高斯金字塔图像中的位置坐标。  
 ##插值计算每个种子点八个方向的梯度。
+<span class="image right"><img width = "200" height = "200" src="{{ 'assets/images/hist.jpg' | relative_url }}" alt="error image path " /></span> 
+将得采样点在子区域中的下标$(x'',y'')$(图中蓝色窗口内红色点)线性插值，计算其对每个种子点的贡献。如图中的红色点，
+落在第0行和第1行之间，对这两行都有贡献。对第0行第3列种子点的贡献因子为dr，对第1行第3列的贡献因子为1-dr，同理，
+对邻近两列的贡献因子为dc和1-dc，对邻近两个方向的贡献因子为do和1-do。则最终累加在每个方向上的梯度大小为：
+$weight=w * dr^k * (1-dr)^{1-k} * dc^m * (1-dc)^{1-m} * do^n * (1-do)^{1-n}$,k,m,n或0或1.  
+如上统计的$4 * 4 * 8=128 $个梯度信息即为该关键点的特征向量。特征向量形成后，为了去除光照变化的影响，
+需要对它们进行归一化处理，对于图像灰度值整体漂移，图像各点的梯度是邻域像素相减得到，所以也能去除。
+得到的描述子向量为$H=(h_1,h_2,...,h_{128})$,归一化后向量$L=(L_1,L_2,...,L_{128})$;  
+$l_i=\frac{h_i}{\sqrt{\sum_{j=1}^{128}h_j}}$,j=1,2,3...   
+## 描述子向量门限。
+非线性光照，相机饱和度变化对造成某些方向的梯度值过大，而对方向的影响微弱。因此设置门限值(向量归一化后，一般取0.2)截断较大的梯度值。
+然后，再进行一次归一化处理，提高特征的鉴别性。
+
+## 按特征点的尺度对特征描述向量进行排序。
+
+<span class="image right"><img width = "300" height = "300" src="{{ 'assets/images/draft.png' | relative_url }}" alt="error image path " /></span>
 
 
+
+### 参考
+SIFT算法详解:<https://blog.csdn.net/zddblog/article/details/7521424>  
+SIFT特征提取分析:<https://blog.csdn.net/abcjennifer/article/details/7639681/>
 
